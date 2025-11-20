@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FlipDown Timer – Dark Mode + Preview + Pause + Sound</title>
+
+  <!-- Local FlipDown CSS -->
+  <link rel="stylesheet" href="flipdown.min.css">
+
+  <style>
+    :root {
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, #1f2937 0, #020617 55%, #000 100%);
+      color: #e5e7eb;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 620px;
+      padding: 1.5rem;
+    }
+
+    .timer-card {
+      background: radial-gradient(circle at 10% 0, #111827 0, #020617 60%);
+      border-radius: 1.5rem;
+      padding: 1.6rem 1.8rem 1.4rem;
+      box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.8),
+        0 0 0 1px rgba(148, 163, 184, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .timer-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 0 0, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(circle at 100% 0, rgba(52, 211, 153, 0.12), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .timer-card-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .timer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .title-block h1 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    .title-block p {
+      margin: 0.15rem 0 0;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    .chip {
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.7);
+      color: #e5e7eb;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      white-space: nowrap;
+    }
+
+    .chip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.9);
+    }
+
+    .labels-row {
+      display: flex;
+      justify-content: center;
+      gap: 72px;
+      margin-bottom: 0.25rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .labels-row span {
+      width: 60px;
+      text-align: center;
+    }
+
+    /* FlipDown container tweaks */
+    #flipdown {
+      margin: 0 auto 0.75rem auto;
+      transform: scale(0.9);
+      transform-origin: center;
+    }
+
+    .flipdown.flipdown__theme-dark {
+      font-family: inherit;
+    }
+
+    /* Hide FlipDown's built-in headings, we use our own labels */
+    #flipdown .flipdown__headings {
+      display: none;
+    }
+
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.4rem;
+    }
+
+    .input-group-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    .field label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .field-inner {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 0.7rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(75, 85, 99, 0.9);
+    }
+
+    .field-inner input {
+      width: 3rem;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
+    .field-inner input:disabled {
+      color: #6b7280;
+    }
+
+    .field-inner span.unit {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.42rem 0.95rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:active {
+      transform: translateY(1px) scale(0.98);
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #22c55e, #2dd4bf);
+      color: #022c22;
+      box-shadow:
+        0 10px 25px rgba(34, 197, 94, 0.55),
+        0 0 0 1px rgba(15, 118, 110, 0.6);
+    }
+
+    .btn-primary[disabled] {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.9);
+      color: #e5e7eb;
+      border: 1px solid rgba(75, 85, 99, 0.9);
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.8);
+    }
+
+    .btn-icon {
+      font-size: 0.9rem;
+    }
+
+    .status-row {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .status {
+      transition: color 0.15s ease;
+    }
+
+    .status--preview {
+      color: #a5b4fc;
+    }
+
+    .status--running {
+      color: #4ade80;
+    }
+
+    .status--paused {
+      color: #facc15;
+    }
+
+    .status--done {
+      color: #fb7185;
+    }
+
+    .status--warning {
+      color: #f97316;
+    }
+
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.12rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(75, 85, 99, 0.8);
+      color: #9ca3af;
+    }
+
+    @media (max-width: 640px) {
+      .timer-card {
+        padding: 1.3rem 1.2rem 1.2rem;
+      }
+      .labels-row {
+        gap: 46px;
+        font-size: 0.72rem;
+      }
+      #flipdown {
+        transform: scale(0.8);
+      }
+      .controls-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .btn-row {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="timer-card">
+      <div class="timer-card-inner">
+        <div class="timer-header">
+          <div class="title-block">
+            <h1>Countdown</h1>
+            <p>FlipDown timer</p>
+          </div>
+          <div class="chip">
+            <span class="chip-dot"></span>
+            live preview
+          </div>
+        </div>
+        <div id="flipdown" class="flipdown flipdown__theme-light"></div>
+
+        <div class="controls-row">
+          <div class="input-group-row">
+            <div class="field">
+              <label for="dInput">Days</label>
+              <div class="field-inner">
+                <input id="dInput" type="number" min="0" max="365" value="0" />
+                <span class="unit">d</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="hInput">Hours</label>
+              <div class="field-inner">
+                <input id="hInput" type="number" min="0" max="99" value="0" />
+                <span class="unit">h</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="mInput">Minutes</label>
+              <div class="field-inner">
+                <input id="mInput" type="number" min="0" max="59" value="1" />
+                <span class="unit">m</span>
+              </div>
+            </div>
+            <div class="field">
+              <label for="sInput">Seconds</label>
+              <div class="field-inner">
+                <input id="sInput" type="number" min="0" max="59" value="0" />
+                <span class="unit">s</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button id="startPauseBtn" class="btn btn-primary" data-mode="start">
+              <span class="btn-icon">▶</span>
+              <span class="btn-label">Start</span>
+            </button>
+            <button id="resetBtn" class="btn btn-ghost">
+              <span class="btn-icon">⟲</span>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="status-row">
+          <div id="status" class="status status--preview">
+            Preview – not started yet.
+          </div>
+          <div class="pill">sound on</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Local FlipDown JS -->
+  <script src="flipdown.min.js"></script>
+  <script>
+    const dInput = document.getElementById("dInput");
+    const hInput = document.getElementById("hInput");
+    const mInput = document.getElementById("mInput");
+    const sInput = document.getElementById("sInput");
+    const startPauseBtn = document.getElementById("startPauseBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusEl = document.getElementById("status");
+
+    let flipdownInstance = null;
+    let timerInterval = null;
+    let isRunning = false;
+    let elapsedSeconds = 0;
+    let totalSeconds = 0;
+
+    function clampNumber(value, min, max) {
+      const n = parseInt(value || "0", 10);
+      if (isNaN(n)) return 0;
+      return Math.max(min, Math.min(n, max));
+    }
+
+    function getTotalSecondsFromInputs() {
+      const d = clampNumber(dInput.value, 0, 365);
+      const h = clampNumber(hInput.value, 0, 99);
+      const m = clampNumber(mInput.value, 0, 59);
+      const s = clampNumber(sInput.value, 0, 59);
+
+      dInput.value = d;
+      hInput.value = h;
+      mInput.value = m;
+      sInput.value = s;
+
+      return d * 24 * 3600 + h * 3600 + m * 60 + s;
+    }
+
+    function setInputsDisabled(disabled) {
+      [dInput, hInput, mInput, sInput].forEach((inp) => {
+        inp.disabled = disabled;
+      });
+    }
+
+    function updateStatus(text, mood) {
+      statusEl.textContent = text || "";
+      statusEl.className = "status";
+      if (mood) {
+        statusEl.classList.add("status--" + mood);
+      }
+    }
+
+    function createFlipdownInstance() {
+      const container = document.getElementById("flipdown");
+      container.innerHTML = "";
+
+      flipdownInstance = new FlipDown(0, "flipdown", {
+        theme: "dark",
+        headings: ["Days", "Hours", "Minutes", "Seconds"],
+      });
+
+      // Use a virtual clock instead of real time
+      flipdownInstance._virtualNow = elapsedSeconds;
+      flipdownInstance.epoch = totalSeconds;
+      flipdownInstance._getTime = function () {
+        return this._virtualNow;
+      };
+
+      // Initialise once for preview display
+      flipdownInstance._init();
+      flipdownInstance._tick();
+    }
+
+    function rebuildPreview() {
+      if (isRunning) return;
+
+      totalSeconds = getTotalSecondsFromInputs();
+      elapsedSeconds = 0;
+
+      createFlipdownInstance();
+
+      if (totalSeconds > 0) {
+        updateStatus("Preview ready \u2013 press Start.", "preview");
+      } else {
+        updateStatus("Set a time to preview.", "preview");
+      }
+
+      startPauseBtn.dataset.mode = "start";
+      startPauseBtn.querySelector(".btn-icon").textContent = "▶";
+      startPauseBtn.querySelector(".btn-label").textContent = "Start";
+    }
+
+    // Simple Web Audio beeps
+    function playBeep(freq, duration, volume) {
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = freq;
+        gain.gain.value = volume;
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + duration);
+        osc.onended = () => ctx.close();
+      } catch (e) {
+        // audio might be blocked; ignore
+      }
+    }
+
+    function playStartSound() {
+      playBeep(1200, 0.08, 0.25);
+    }
+
+    function playPauseSound() {
+      playBeep(420, 0.12, 0.22);
+    }
+
+    function playEndSound() {
+      playBeep(520, 0.15, 0.32);
+      setTimeout(() => playBeep(720, 0.15, 0.26), 170);
+      setTimeout(() => playBeep(960, 0.15, 0.2), 340);
+    }
+
+    function startOrResumeTimer() {
+      if (isRunning) return;
+
+      totalSeconds = getTotalSecondsFromInputs();
+
+      if (totalSeconds <= 0) {
+        updateStatus("Set a duration greater than zero.", "warning");
+        playBeep(260, 0.18, 0.3);
+        return;
+      }
+
+      if (!flipdownInstance) {
+        createFlipdownInstance();
+      } else {
+        flipdownInstance.epoch = totalSeconds;
+        flipdownInstance._virtualNow = elapsedSeconds;
+        flipdownInstance._tick();
+      }
+
+      isRunning = true;
+      setInputsDisabled(true);
+      updateStatus("Running...", "running");
+      startPauseBtn.dataset.mode = "pause";
+      startPauseBtn.querySelector(".btn-icon").textContent = "⏸";
+      startPauseBtn.querySelector(".btn-label").textContent = "Pause";
+      playStartSound();
+
+      if (timerInterval) clearInterval(timerInterval);
+
+      timerInterval = setInterval(() => {
+        if (!flipdownInstance) return;
+
+        if (elapsedSeconds >= totalSeconds) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isRunning = false;
+          setInputsDisabled(false);
+          updateStatus("Finished!", "done");
+          startPauseBtn.dataset.mode = "start";
+          startPauseBtn.querySelector(".btn-icon").textContent = "▶";
+          startPauseBtn.querySelector(".btn-label").textContent = "Start";
+          playEndSound();
+          return;
+        }
+
+        elapsedSeconds += 1;
+        flipdownInstance._virtualNow = elapsedSeconds;
+        flipdownInstance._tick();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (!isRunning) return;
+      isRunning = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      updateStatus("Paused.", "paused");
+      startPauseBtn.dataset.mode = "resume";
+      startPauseBtn.querySelector(".btn-icon").textContent = "▶";
+      startPauseBtn.querySelector(".btn-label").textContent = "Resume";
+      playPauseSound();
+    }
+
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      isRunning = false;
+      elapsedSeconds = 0;
+      setInputsDisabled(false);
+      flipdownInstance = null;
+      document.getElementById("flipdown").innerHTML = "";
+      rebuildPreview();
+    }
+
+    startPauseBtn.addEventListener("click", () => {
+      const mode = startPauseBtn.dataset.mode || "start";
+      if (mode === "start" || mode === "resume") {
+        startOrResumeTimer();
+      } else if (mode === "pause") {
+        pauseTimer();
+      }
+    });
+
+    resetBtn.addEventListener("click", resetTimer);
+
+    [dInput, hInput, mInput, sInput].forEach((input) => {
+      input.addEventListener("input", rebuildPreview);
+      input.addEventListener("change", rebuildPreview);
+    });
+
+    // Initial preview on load
+    rebuildPreview();
+  </script>
+</body>
+</html>
