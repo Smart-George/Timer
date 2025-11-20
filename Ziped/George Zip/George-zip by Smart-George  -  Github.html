@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GeorgeZip Ultra+ – .george_zip Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg: #050816;
+      --bg2: #0b1020;
+      --accent: #ffb347;
+      --accent-strong: #ff7b00;
+      --accent-soft: rgba(255, 180, 71, 0.2);
+      --text: #f5f5ff;
+      --muted: #a0a4c0;
+      --error: #ff4d6a;
+      --radius-lg: 18px;
+      --radius-xl: 28px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 0% 0%, #281b5a 0, transparent 55%),
+        radial-gradient(circle at 100% 0%, #3a0f25 0, transparent 55%),
+        radial-gradient(circle at 50% 120%, #0e3560 0, #050816 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app {
+      width: min(960px, 100%);
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.06), rgba(10, 10, 20, 0.95));
+      border-radius: var(--radius-xl);
+      padding: 24px 24px 18px;
+      box-shadow:
+        0 24px 80px rgba(0, 0, 0, 0.6),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(22px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(255, 179, 71, 0.16) 0, transparent 55%),
+        radial-gradient(circle at 100% 80%, rgba(255, 71, 187, 0.12) 0, transparent 60%);
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .logo {
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 25% 0%, #fff1d2 0, #ffb347 30%, #ff7b00 60%, #8a3500 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.35),
+        0 12px 30px rgba(0, 0, 0, 0.6);
+      font-size: 24px;
+      font-weight: 900;
+      color: #1b0b00;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    header h1 span.badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.48);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+    }
+
+    header p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 760px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(5, 7, 20, 0.88);
+      border-radius: var(--radius-lg);
+      padding: 16px 16px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.04), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel h2 span.label {
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .panel p {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .file-drop {
+      margin-top: 4px;
+      border-radius: 14px;
+      padding: 14px;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.04), transparent 55%);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition:
+        border-color 0.12s ease,
+        box-shadow 0.12s ease,
+        background 0.12s ease;
+    }
+
+    .file-drop.drag-over {
+      border-color: var(--accent-strong);
+      box-shadow:
+        0 0 0 1px rgba(255, 255, 255, 0.12),
+        0 0 25px rgba(255, 180, 71, 0.3);
+      background:
+        radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.08), transparent 55%),
+        linear-gradient(135deg, rgba(255, 180, 71, 0.1), rgba(255, 127, 0, 0.06));
+    }
+
+    .file-drop.drag-over label {
+      color: var(--accent);
+    }
+
+    .file-drop label {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .file-drop input[type="file"] {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 100%;
+    }
+
+    .file-info {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .file-info span.name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 60%;
+    }
+
+    .file-info span.size {
+      opacity: 0.8;
+    }
+
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 6px;
+    }
+
+    button {
+      position: relative;
+      border-radius: 999px;
+      border: 0;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      outline: none;
+      transform: translateY(0);
+      transition:
+        transform 0.09s ease,
+        box-shadow 0.09s ease,
+        background 0.12s ease,
+        opacity 0.12s ease;
+    }
+
+    button.primary {
+      background: radial-gradient(circle at 0 0, var(--accent) 0, var(--accent-strong) 70%);
+      color: #1b0b00;
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    button.secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      box-shadow:
+        0 10px 26px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
+    button:not(:disabled):active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow:
+        0 5px 12px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(255, 255, 255, 0.05);
+    }
+
+    button span.kbd {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.5);
+      color: var(--muted);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 11px;
+    }
+
+    .chip {
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chip strong {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .chip.bad {
+      border-color: rgba(255, 77, 106, 0.6);
+      color: #ffb3c2;
+    }
+
+    .chip.good {
+      border-color: rgba(0, 255, 171, 0.6);
+      color: #a3ffe0;
+    }
+
+    .progress-block {
+      margin-top: 10px;
+    }
+
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .progress-label span.value {
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+    }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      overflow: hidden;
+      appearance: none;
+    }
+
+    progress::-webkit-progress-bar {
+      background-color: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+    }
+
+    progress::-webkit-progress-value {
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent-strong));
+    }
+
+    progress::-moz-progress-bar {
+      background: linear-gradient(90deg, var(--accent-soft), var(--accent-strong));
+    }
+
+    .status {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 1.4em;
+      white-space: pre-line;
+    }
+
+    .status .error {
+      color: var(--error);
+    }
+
+    .sidebar-list {
+      margin: 8px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .sidebar-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .sidebar-list li span.bullet {
+      width: 10px;
+      margin-top: 4px;
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    footer span.ext {
+      color: var(--accent);
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo,
+        Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+    }
+
+    footer a:hover {
+      border-bottom-style: solid;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="logo">GZ</div>
+      <div>
+        <h1>
+          GeorgeZip Ultra+
+          <span class="badge">LZMA-9 Solid</span>
+        </h1>
+        <p>Pick files / folders or just yeet them onto the box. Browser-only,
+          stupidly strong compression, custom <span class="ext">.george_zip</span> container.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>
+          Zipper
+          <span class="label">Files → .george_zip</span>
+        </h2>
+        <p>
+          Select one file (classic) or multiple / a folder (solid archive). Or drag &amp; drop.
+          Everything goes into a single LZMA stream at max level.
+        </p>
+
+        <div class="file-drop" id="fileDrop">
+          <label for="fileInput">
+            <span>Source file(s) / folder – click or drop here</span>
+          </label>
+          <!-- webkitdirectory: folders via picker; drag-drop handles files/multi-files -->
+          <input id="fileInput" type="file" webkitdirectory multiple />
+          <div class="file-info" id="fileInfo">
+            <span class="name">No files selected</span>
+            <span class="size">–</span>
+          </div>
+        </div>
+
+        <div class="buttons">
+          <button id="btnCompress" class="primary">
+            Compress to .george_zip
+            <span class="kbd">Solid</span>
+          </button>
+          <button id="btnDecompress" class="secondary">
+            Decompress .george_zip
+          </button>
+        </div>
+
+        <div class="chip-row">
+          <span class="chip good">
+            <strong>Algo:</strong> LZMA (level 9)
+          </span>
+          <span class="chip">
+            <strong>Mode:</strong> Solid multi-file support
+          </span>
+          <span class="chip bad">
+            <strong>Warning:</strong> Big sets = long wait
+          </span>
+          <span class="chip good">
+            <strong>Talkative:</strong> Shows each phase
+          </span>
+        </div>
+
+        <div class="progress-block">
+          <div class="progress-label">
+            <span id="progressLabel">Idle</span>
+            <span class="value" id="progressPercent">0%</span>
+          </div>
+          <progress id="progressBar" max="1" value="0"></progress>
+        </div>
+
+        <div class="status" id="status"></div>
+      </section>
+
+      <aside class="panel">
+        <h2>
+          Format Notes
+          <span class="label">.george_zip v2</span>
+        </h2>
+        <p>
+          Not a normal ZIP. This is a tiny custom container around a big LZMA stream.
+          Knows how to store many files in one ultra-compressed blob.
+        </p>
+        <ul class="sidebar-list">
+          <li>
+            <span class="bullet">•</span>
+            <span><strong>Magic:</strong> <code>GZP2</code> + JSON metadata +
+              raw LZMA. Also still understands legacy <code>GZP1</code>.</span>
+          </li>
+          <li>
+            <span class="bullet">•</span>
+            <span><strong>Solid archives:</strong> multiple files / folders packed
+              into one stream, often better ratio than separate archives.</span>
+          </li>
+          <li>
+            <span class="bullet">•</span>
+            <span><strong>Integrity:</strong> 32-bit CRC over original bytes, to
+              catch corruption.</span>
+          </li>
+          <li>
+            <span class="bullet">•</span>
+            <span><strong>Metadata:</strong> per-file size, path, type, timestamps,
+              plus total size &amp; algorithm info.</span>
+          </li>
+        </ul>
+      </aside>
+    </div>
+
+    <footer>
+      <span>Extension:
+        <span class="ext">*.george_zip</span>
+        (custom LZMA solid archive)
+      </span>
+      <span>Powered by <a href="https://cdn.jsdelivr.net/npm/lzma/src/lzma_worker-min.js"
+          target="_blank" rel="noreferrer">lzma-js</a> in your browser.</span>
+    </footer>
+  </div>
+
+  <!-- LZMA-JS worker build: creates global LZMA object -->
+  <script src="https://cdn.jsdelivr.net/npm/lzma/src/lzma_worker-min.js"></script>
+
+  <script>
+    // --- DOM shortcuts ---
+    const $ = (id) => document.getElementById(id);
+
+    const fileInput = $("fileInput");
+    const fileDropArea = $("fileDrop");
+    const fileInfoName = $("fileInfo").querySelector(".name");
+    const fileInfoSize = $("fileInfo").querySelector(".size");
+    const btnCompress = $("btnCompress");
+    const btnDecompress = $("btnDecompress");
+    const progressBar = $("progressBar");
+    const progressLabel = $("progressLabel");
+    const progressPercent = $("progressPercent");
+    const statusEl = $("status");
+
+    // --- utils ---
+    function formatBytes(bytes) {
+      if (!Number.isFinite(bytes)) return "-";
+      const units = ["B", "KB", "MB", "GB", "TB"];
+      let i = 0;
+      let value = bytes;
+      while (value >= 1024 && i < units.length - 1) {
+        value /= 1024;
+        i++;
+      }
+      return value.toFixed(i === 0 ? 0 : 2) + " " + units[i];
+    }
+
+    function updateFileInfo() {
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) {
+        fileInfoName.textContent = "No files selected";
+        fileInfoSize.textContent = "–";
+        return;
+      }
+
+      if (files.length === 1) {
+        fileInfoName.textContent = files[0].name;
+        fileInfoSize.textContent = formatBytes(files[0].size);
+      } else {
+        const total = files.reduce((s, f) => s + f.size, 0);
+        fileInfoName.textContent = `${files.length} files selected`;
+        fileInfoSize.textContent = formatBytes(total);
+      }
+    }
+
+    function setStatus(msg, isError = false) {
+      statusEl.innerHTML = "";
+      if (!msg) return;
+      const span = document.createElement("span");
+      span.textContent = msg;
+      if (isError) span.classList.add("error");
+      statusEl.appendChild(span);
+      console.log("[GeorgeZip]", msg);
+    }
+
+    function resetProgress(label = "Idle") {
+      progressBar.value = 0;
+      progressLabel.textContent = label;
+      progressPercent.textContent = "0%";
+    }
+
+    function setProgress(value, label) {
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        value = 0;
+      }
+      const clamped = Math.max(0, Math.min(1, value));
+      progressBar.value = clamped;
+      if (label) progressLabel.textContent = label;
+      progressPercent.textContent = Math.round(clamped * 100) + "%";
+    }
+
+    function uint8ToArray(u8) {
+      const arr = new Array(u8.length);
+      for (let i = 0; i < u8.length; i++) arr[i] = u8[i];
+      return arr;
+    }
+
+    function arrayToUint8(arr) {
+      if (arr instanceof Uint8Array) return arr;
+      if (!Array.isArray(arr)) {
+        return new Uint8Array(0);
+      }
+      const u8 = new Uint8Array(arr.length);
+      for (let i = 0; i < arr.length; i++) u8[i] = arr[i] & 0xff;
+      return u8;
+    }
+
+    function concatUint8(chunks, totalLen) {
+      if (!Array.isArray(chunks) || !chunks.length) return new Uint8Array(0);
+      if (!Number.isFinite(totalLen)) {
+        totalLen = chunks.reduce((s, c) => s + c.length, 0);
+      }
+      const out = new Uint8Array(totalLen);
+      let offset = 0;
+      for (const chunk of chunks) {
+        out.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return out;
+    }
+
+    // --- CRC32 for integrity checks ---
+    const CRC32_TABLE = (() => {
+      const table = new Uint32Array(256);
+      for (let n = 0; n < 256; n++) {
+        let c = n;
+        for (let k = 0; k < 8; k++) {
+          c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        }
+        table[n] = c >>> 0;
+      }
+      return table;
+    })();
+
+    function crc32(u8) {
+      let crc = 0 ^ -1;
+      for (let i = 0; i < u8.length; i++) {
+        crc = (crc >>> 8) ^ CRC32_TABLE[(crc ^ u8[i]) & 0xff];
+      }
+      return (crc ^ -1) >>> 0;
+    }
+
+    function makeHeader(metadata, compressedBytes, magicStr = "GZP2") {
+      const magic = new Uint8Array([
+        magicStr.charCodeAt(0),
+        magicStr.charCodeAt(1),
+        magicStr.charCodeAt(2),
+        magicStr.charCodeAt(3)
+      ]);
+      const encoder = new TextEncoder();
+      const metaJson = JSON.stringify(metadata || {});
+      const metaBytes = encoder.encode(metaJson);
+      const jsonLen = metaBytes.length;
+
+      const totalLen = 4 + 4 + jsonLen + compressedBytes.length;
+      const out = new Uint8Array(totalLen);
+      let offset = 0;
+
+      out.set(magic, offset);
+      offset += 4;
+
+      // JSON length (big endian)
+      out[offset++] = (jsonLen >>> 24) & 0xff;
+      out[offset++] = (jsonLen >>> 16) & 0xff;
+      out[offset++] = (jsonLen >>> 8) & 0xff;
+      out[offset++] = jsonLen & 0xff;
+
+      out.set(metaBytes, offset);
+      offset += jsonLen;
+
+      out.set(compressedBytes, offset);
+      return out;
+    }
+
+    function parseHeader(bytes) {
+      if (!(bytes instanceof Uint8Array) || bytes.length < 8) {
+        throw new Error("File is too small to be a .george_zip file.");
+      }
+
+      const magic = String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]);
+      if (magic !== "GZP1" && magic !== "GZP2") {
+        throw new Error("Magic header mismatch – this is not a .george_zip file.");
+      }
+
+      const jsonLen =
+        (bytes[4] << 24) |
+        (bytes[5] << 16) |
+        (bytes[6] << 8) |
+        bytes[7];
+
+      if (jsonLen < 0 || bytes.length < 8 + jsonLen + 1) {
+        throw new Error("Invalid metadata length in header.");
+      }
+
+      const metaBytes = bytes.subarray(8, 8 + jsonLen);
+      const decoder = new TextDecoder();
+      const metaJson = decoder.decode(metaBytes);
+      let metadata;
+      try {
+        metadata = JSON.parse(metaJson);
+      } catch (e) {
+        throw new Error("Failed to parse metadata JSON.");
+      }
+
+      if (!metadata || typeof metadata !== "object") metadata = {};
+      if (!metadata.version) {
+        metadata.version = (magic === "GZP1") ? 1 : 2;
+      }
+
+      const compressed = bytes.subarray(8 + jsonLen);
+      if (!compressed.length) {
+        throw new Error("No compressed payload found.");
+      }
+
+      return { magic, metadata, compressed };
+    }
+
+    function triggerDownload(blob, filename) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    }
+
+    // --- drag & drop support ---
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    ["dragenter", "dragover"].forEach((ev) => {
+      fileDropArea.addEventListener(ev, (e) => {
+        preventDefaults(e);
+        fileDropArea.classList.add("drag-over");
+        progressLabel.textContent = "Drag & drop detected…";
+      });
+    });
+
+    ["dragleave", "drop"].forEach((ev) => {
+      fileDropArea.addEventListener(ev, (e) => {
+        preventDefaults(e);
+        fileDropArea.classList.remove("drag-over");
+      });
+    });
+
+    fileDropArea.addEventListener("drop", (e) => {
+      preventDefaults(e);
+      const dt = e.dataTransfer;
+      if (!dt) return;
+      const files = Array.from(dt.files || []);
+      if (!files.length) {
+        setStatus("No files found in drop.", true);
+        return;
+      }
+      try {
+        const newDT = new DataTransfer();
+        for (const f of files) newDT.items.add(f);
+        fileInput.files = newDT.files;
+        updateFileInfo();
+        setStatus(`Got ${files.length} file(s) from drag & drop.`);
+      } catch (err) {
+        console.warn("DataTransfer not supported for programmatic assignment", err);
+        setStatus("Dropped files detected, but browser can't hook them into the picker. Use the file input instead.", true);
+      }
+    });
+
+    // --- main operations ---
+
+    async function compressSelection() {
+      const files = Array.from(fileInput.files || []);
+      if (!files.length) {
+        setStatus("Pick at least one file (or a folder).", true);
+        return;
+      }
+
+      if (typeof LZMA === "undefined" || !LZMA.compress) {
+        setStatus("LZMA library not loaded yet. Check your network.", true);
+        return;
+      }
+
+      btnCompress.disabled = true;
+      btnDecompress.disabled = true;
+      resetProgress("Phase 1/3: reading files…");
+
+      try {
+        const chunks = [];
+        const metaFiles = [];
+        let totalSize = 0;
+
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          setStatus(
+            `Phase 1/3: Reading files into memory…\n` +
+            `Currently: ${file.webkitRelativePath || file.name} (${i + 1}/${files.length})`
+          );
+          const buf = await file.arrayBuffer();
+          const u8 = new Uint8Array(buf);
+          chunks.push(u8);
+          metaFiles.push({
+            name: file.name,
+            path: file.webkitRelativePath || file.name,
+            size: u8.length,
+            type: file.type || "application/octet-stream",
+            mtime: file.lastModified || Date.now()
+          });
+          totalSize += u8.length;
+        }
+
+        const isMulti = files.length > 1;
+        const payload = isMulti ? concatUint8(chunks, totalSize) : chunks[0];
+
+        const meta = {
+          version: 2,
+          algo: "LZMA",
+          level: 9,
+          solid: isMulti,
+          fileCount: files.length,
+          originalTotalSize: totalSize,
+          files: metaFiles,
+          crc32: crc32(payload)
+        };
+
+        const humanSize = formatBytes(totalSize);
+        setStatus(
+          [
+            `Phase 1/3: Files loaded into memory (${humanSize}).`,
+            isMulti
+              ? `Phase 2/3: Building solid byte stream from ${files.length} files…`
+              : `Phase 2/3: Preparing single-file stream…`,
+            `Phase 3/3: LZMA-9 compression in progress (this is the slow part).`
+          ].join("\n")
+        );
+
+        const inputArr = uint8ToArray(payload);
+
+        setProgress(0, "Phase 3/3: compressing…");
+        const startTime = performance.now();
+
+        LZMA.compress(
+          inputArr,
+          9,
+          function onFinish(result, error) {
+            const endTime = performance.now();
+            if (error) {
+              console.error(error);
+              setStatus("Compression error: " + error, true);
+              btnCompress.disabled = false;
+              btnDecompress.disabled = false;
+              resetProgress("Idle");
+              return;
+            }
+
+            const compressed = arrayToUint8(result);
+            const packed = makeHeader(meta, compressed, "GZP2");
+            const blob = new Blob([packed], {
+              type: "application/octet-stream"
+            });
+
+            let outName;
+            if (!isMulti) {
+              outName = files[0].name + ".george_zip";
+            } else {
+              const first = metaFiles[0].path || metaFiles[0].name;
+              const root = first.includes("/")
+                ? first.split("/")[0]
+                : "GeorgeZipSolid";
+              outName = root + ".george_zip";
+            }
+
+            triggerDownload(blob, outName);
+
+            const timeMs = endTime - startTime;
+            const ratio = packed.length && totalSize
+              ? (packed.length / totalSize) * 100
+              : NaN;
+
+            const msgLines = [
+              isMulti
+                ? `Done! Solid archive created from ${files.length} file(s).`
+                : `Done! Compressed ${files[0].name}.`,
+              "Original total: " + formatBytes(totalSize),
+              "Packed size:    " + formatBytes(packed.length),
+              isFinite(ratio)
+                ? "Ratio:          " + ratio.toFixed(2) + "% of original"
+                : "",
+              "Phase 3/3 time: " + timeMs.toFixed(0) + " ms (JS, single-thread)"
+            ].filter(Boolean);
+
+            setStatus(msgLines.join("\n"));
+            setProgress(1, "Done");
+            btnCompress.disabled = false;
+            btnDecompress.disabled = false;
+          },
+          function onProgress(percent) {
+            if (percent < 0) {
+              progressLabel.textContent = "Phase 3/3: compressing (unknown size)…";
+              return;
+            }
+            setProgress(percent, "Phase 3/3: compressing…");
+          }
+        );
+      } catch (e) {
+        console.error(e);
+        setStatus("Unexpected error while reading/compressing files.", true);
+        resetProgress("Idle");
+        btnCompress.disabled = false;
+        btnDecompress.disabled = false;
+      }
+    }
+
+    async function decompressFile() {
+      const file = (fileInput.files || [])[0];
+      if (!file) {
+        setStatus("Select a .george_zip file to decompress.", true);
+        return;
+      }
+
+      if (typeof LZMA === "undefined" || !LZMA.decompress) {
+        setStatus("LZMA library not loaded yet. Check your network.", true);
+        return;
+      }
+
+      btnCompress.disabled = true;
+      btnDecompress.disabled = true;
+      resetProgress("Phase 1/3: reading container…");
+
+      try {
+        const buf = await file.arrayBuffer();
+        const bytes = new Uint8Array(buf);
+
+        let header;
+        try {
+          header = parseHeader(bytes);
+        } catch (e) {
+          setStatus(e.message, true);
+          resetProgress("Idle");
+          btnCompress.disabled = false;
+          btnDecompress.disabled = false;
+          return;
+        }
+
+        const { metadata, compressed } = header;
+        const compressedArr = uint8ToArray(compressed);
+        const isSolidMeta = metadata && metadata.solid && Array.isArray(metadata.files) && metadata.files.length > 1;
+
+        setStatus(
+          [
+            `Phase 1/3: Parsed .george_zip header (version ${metadata.version || "?"}).`,
+            `Phase 2/3: Decompressing LZMA stream…`,
+            isSolidMeta
+              ? `Phase 3/3: Will split solid stream into ${metadata.fileCount} file(s).`
+              : `Phase 3/3: Will reconstruct a single output file.`
+          ].join("\n")
+        );
+
+        setProgress(0, "Phase 2/3: decompressing…");
+        const startTime = performance.now();
+
+        LZMA.decompress(
+          compressedArr,
+          function onFinish(result, error) {
+            const endTime = performance.now();
+            if (error) {
+              console.error(error);
+              setStatus("Decompression error: " + error, true);
+              resetProgress("Idle");
+              btnCompress.disabled = false;
+              btnDecompress.disabled = false;
+              return;
+            }
+
+            let outBytes;
+            let defaultType = "application/octet-stream";
+
+            if (Array.isArray(result) || result instanceof Uint8Array) {
+              outBytes = arrayToUint8(result);
+            } else if (typeof result === "string") {
+              const enc = new TextEncoder();
+              outBytes = enc.encode(result);
+              defaultType = "text/plain";
+            } else {
+              setStatus("Unknown result type from LZMA.decompress.", true);
+              resetProgress("Idle");
+              btnCompress.disabled = false;
+              btnDecompress.disabled = false;
+              return;
+            }
+
+            // CRC32 check if available
+            if (metadata && typeof metadata.crc32 === "number") {
+              const calc = crc32(outBytes);
+              if ((calc >>> 0) !== (metadata.crc32 >>> 0)) {
+                setStatus(
+                  "Warning: CRC32 mismatch – file may be corrupted.\n" +
+                  "Decompression finished, but data might not match original.",
+                  true
+                );
+              }
+            }
+
+            const isSolid = metadata && metadata.solid && Array.isArray(metadata.files) && metadata.files.length > 1;
+
+            if (isSolid) {
+              const timeMs = endTime - startTime;
+              setStatus(
+                [
+                  "Phase 2/3: Decompression finished.",
+                  `Phase 3/3: Reconstructing ${metadata.files.length} file(s) from solid stream…`
+                ].join("\n")
+              );
+
+              let offset = 0;
+              const filesMeta = metadata.files;
+              for (let i = 0; i < filesMeta.length; i++) {
+                const info = filesMeta[i] || {};
+                const size = Number(info.size) || 0;
+                const slice = outBytes.subarray(offset, offset + size);
+                offset += size;
+
+                const blob = new Blob([slice], {
+                  type: info.type || defaultType
+                });
+                const outName = info.path || info.name || ("file_" + (i + 1));
+                triggerDownload(blob, outName);
+              }
+
+              const msgLines = [
+                `Done! Solid archive expanded into ${filesMeta.length} file(s).`,
+                "Total original size: " + formatBytes(metadata.originalTotalSize || outBytes.length),
+                "Phase 2/3 time: " + timeMs.toFixed(0) + " ms"
+              ];
+              setStatus(msgLines.join("\n"));
+            } else {
+              const blob = new Blob([outBytes], {
+                type: (metadata && metadata.type) || defaultType
+              });
+
+              const outName =
+                (metadata && metadata.name) ||
+                file.name.replace(/\.george_zip$/i, "") ||
+                "output.bin";
+
+              triggerDownload(blob, outName);
+
+              const timeMs = endTime - startTime;
+              const msgLines = [
+                "Done! Single file restored.",
+                "From container: " + (file.name || ".george_zip"),
+                metadata && metadata.name ? "Original name: " + metadata.name : "",
+                metadata && Number.isFinite(metadata.size)
+                  ? "Original size: " + formatBytes(metadata.size)
+                  : "",
+                "Phase 2/3 time: " + timeMs.toFixed(0) + " ms"
+              ].filter(Boolean);
+              setStatus(msgLines.join("\n"));
+            }
+
+            setProgress(1, "Done");
+            btnCompress.disabled = false;
+            btnDecompress.disabled = false;
+          },
+          function onProgress(percent) {
+            if (percent < 0) {
+              progressLabel.textContent = "Phase 2/3: decompressing (unknown size)…";
+              return;
+            }
+            setProgress(percent, "Phase 2/3: decompressing…");
+          }
+        );
+      } catch (e) {
+        console.error(e);
+        setStatus("Unexpected error while reading/decompressing file.", true);
+        resetProgress("Idle");
+        btnCompress.disabled = false;
+        btnDecompress.disabled = false;
+      }
+    }
+
+    fileInput.addEventListener("change", updateFileInfo);
+    btnCompress.addEventListener("click", () => {
+      compressSelection();
+    });
+    btnDecompress.addEventListener("click", () => {
+      decompressFile();
+    });
+
+    // Initial state
+    updateFileInfo();
+    resetProgress();
+    if (typeof LZMA === "undefined") {
+      setStatus("Waiting for LZMA module to load…");
+    }
+  </script>
+</body>
+</html>
